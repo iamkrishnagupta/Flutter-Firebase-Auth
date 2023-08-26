@@ -2,12 +2,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-Future <void> main() async {
+Future<void> main() async {
   debugPrint('-- main');
   WidgetsFlutterBinding.ensureInitialized();
-   debugPrint('-- WidgetsFlutterBinding.ensureInitialized');
+  debugPrint('-- WidgetsFlutterBinding.ensureInitialized');
   await Firebase.initializeApp();
-   debugPrint('-- Firebase.initializeApp');
+  debugPrint('-- Firebase.initializeApp');
 
   runApp(const MainApp());
 }
@@ -52,6 +52,7 @@ class _WidgetTreeState extends State<WidgetTree> {
 
 class Auth {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final auth = FirebaseAuth.instance;
 
   User? get currentUser => _auth.currentUser;
 
@@ -125,13 +126,14 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _errorMessage() {
-    return Text(errorMessage == '' ? '' : 'Umm! $errorMessage');
+    return Text(errorMessage == '' ? '' : 'Umm! $errorMessage.');
   }
 
   Widget _submitButton() {
     return ElevatedButton(
-        onPressed: isLogin ? () => signInWithEmailAndPassword() : () => createUserWithEmailAndPassword(),
-
+        onPressed: isLogin
+            ? () => signInWithEmailAndPassword()
+            : () => createUserWithEmailAndPassword(),
         child: Text(isLogin ? 'Login' : 'Register'));
   }
 
@@ -145,6 +147,22 @@ class _LoginPageState extends State<LoginPage> {
         child: Text(isLogin ? 'Register Instead?' : 'Login Instead?'));
   }
 
+  Widget _forgotPassword() {
+    return TextButton(
+      onPressed: () {
+        FirebaseAuth.instance.sendPasswordResetEmail(email: _controllerEmail.text);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'A password reset email has been sent to your email address.',
+            ),
+          ),
+        );
+      },
+      child: const Text('Forgot Password?'),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -156,17 +174,26 @@ class _LoginPageState extends State<LoginPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
+              const Text(
+                'Firebase Authentication',
+                style: TextStyle(
+                  fontSize: 30,
+                  color: Colors.deepPurple,
+                ),
+              ),
+              const SizedBox(height: 30),
               _entryField('Enter your email', _controllerEmail),
               _entryField('Enter your password', _controllerPassword),
               const SizedBox(
                 height: 9,
               ),
               _errorMessage(),
-               const SizedBox(
+              const SizedBox(
                 height: 9,
               ),
               _submitButton(),
               _loginOrRegistration(),
+              _forgotPassword(),
             ],
           )),
     );
@@ -185,18 +212,19 @@ class HomePage extends StatelessWidget {
   Widget _title() {
     return const Text('Firebase Authentication');
   }
+
   Widget _signInText() {
     return const Text('You\'re currently signed in as');
   }
 
   Widget _userID() {
-    return Text(user?.email ?? 'User email',
-    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400,color: Color.fromARGB(255, 0, 8, 255)),
-    
-
+    return Text(
+      user?.email ?? 'User email',
+      style: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w400,
+          color: Color.fromARGB(255, 0, 8, 255)),
     );
-
-    
   }
 
   Widget _signOutButton() {
